@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Timeline Demo</title>
+    <style>
+      body {
+        height: 100%;
+      }
+      .wrapperWithoutScrollbar,
+      .wrapperWithScrollbar {
+        margin-top: 50px;
+        width: 100%;
+        height: 100px;
+        border: 1px dotted rgb(121, 121, 121);
+      }
+      .wrapperWithScrollbar {
+        overflow-x: scroll;
+      }
+      .noWrapper::before {
+        content: 'No wrapper; scroll bar on window';
+      }
+      .wrapperWithoutScrollbar::before {
+        content: 'Inside a wrapper; no scroll bar';
+      }
+      .wrapperWithScrollbar::before {
+        content: 'Inside a wrapper; with a scroll bar';
+      }
+    </style>
+  </head>
+  <body>
+    <timeline-element class="noWrapper" resolution="Day" 
+                      startdatetime="2020-04-01T00:00:00" 
+                      enddatetime="2020-12-01T00:00:00">
+    </timeline-element>
+    
+    <div class="wrapperWithoutScrollbar">
+      <timeline-element resolution="Day" 
+                        startdatetime="2020-04-01T00:00:00" 
+                        enddatetime="2020-12-01T00:00:00">
+      </timeline-element>
+    </div>
+
+    <div class="wrapperWithScrollbar">
+      <timeline-element resolution="Day" 
+                        startdatetime="2020-04-01T00:00:00" 
+                        enddatetime="2020-12-01T00:00:00">
+      </timeline-element>
+    </div>
+
+    <div class="wrapperWithScrollbar">
+      <timeline-element resolution="Day" 
+                        startdatetime="2020-04-01T00:00:00" 
+                        enddatetime="2020-04-30T23:00:00">
+      </timeline-element>
+    </div>
+
+    <div class="wrapperWithScrollbar">
+      <timeline-element resolution="Hour" 
+                        startdatetime="2020-04-01T00:00:00" 
+                        enddatetime="2020-12-31T23:59:59">
+      </timeline-element>
+    </div>
+  </body>
+</html>
