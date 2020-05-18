@@ -28,6 +28,10 @@
     "server": "node server.js",
     "build": "webpack"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tltv/timeline-element.git"
+  },
   "author": "tltv",
   "license": "MIT"
 }
