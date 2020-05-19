@@ -60,34 +60,3 @@ export function getDSTAdjustedDate(previousIsDST: boolean, zonedDate: Date, dstA
   }
   return zonedDate;
 }
-
-/**
- * Calculate week number for the given date.
- *
- * @param d
- *            Target date
- * @param timezoneOffset
- *            Time zone offset in milliseconds
- * @param firstDayOfWeek
- *            First day of week. Integer between 1-7. 1 is Sunday.
- * @return Week number
- */
-export function getWeekNumber(d: Date, timezoneOffset: number, firstDayOfWeek: number): number {
-    /*
-     * Thanks to stackoverflow.com for a easy function to calculate week
-     * number. See
-     * http://stackoverflow.com/questions/6117814/get-week-of-year
-     * -in-javascript-like-in-php
-     */
-    d = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    let daysToTursday: number;
-    if (firstDayOfWeek == 1) {
-        daysToTursday = 4 - d.getDay();
-    } else {
-        daysToTursday = 4 - ((d.getDay() == 0) ? 7 : d.getDay());
-    }
-    d.setDate(d.getDate() + daysToTursday);
-    let yearStart: Date = new Date(d.getFullYear(), 0, 1);
-    let weekNo: number = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000.0) + 1.0) / 7.0);
-    return weekNo;
-}
