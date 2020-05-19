@@ -307,7 +307,7 @@ class TimelineElement extends LitElement {
   }
 
   render() {
-    return html``;
+    return super.render();
   }
 
   shouldUpdate(changedProperties: any) {
@@ -366,7 +366,7 @@ class TimelineElement extends LitElement {
       return;
     }
     console.log("TimelineElement Updating content.");
-
+    
     this.localeDataProvider = localeDataProvider;
     this.resolution = resolution;
     this.resetDateRange(startDate, endDate);
@@ -400,7 +400,7 @@ class TimelineElement extends LitElement {
       this.appendTimelineBlocks(this.dayRowData, TimelineElement.STYLE_DAY);
     }
     this.shadowRoot.appendChild(this.resolutionDiv);
-
+    
     console.log("TimelineElement Constructed content.");
     this.updateWidths();
     console.log("TimelineElement is updated for resolution " + Resolution[resolution] + ".");
@@ -462,9 +462,16 @@ class TimelineElement extends LitElement {
   }
 
   clear() {
-    while (this.shadowRoot.firstChild) {
-      this.shadowRoot.removeChild(this.shadowRoot.lastChild);
+    let styles: Array<ChildNode> = [];
+    this.shadowRoot.childNodes.forEach(element => {
+      if(element.nodeName === "STYLE") {
+        styles.push(element);
+      }
+    });
+    while(this.shadowRoot.firstChild) {
+      this.shadowRoot.removeChild(this.shadowRoot.firstChild);
     }
+    styles.forEach(style => this.shadowRoot.appendChild(style));
     this.spacerBlocks = [];
     this.yearRowData.clear();
     this.monthRowData.clear();
