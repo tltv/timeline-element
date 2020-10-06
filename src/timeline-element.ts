@@ -37,7 +37,7 @@ import { parse, getISOWeek } from 'date-fns';
  *
  */
 @customElement('timeline-element')
-class TimelineElement extends LitElement {
+export class TimelineElement extends LitElement {
 
   private static readonly STYLE_TIMELINE: string =  "timeline";
   private static readonly  STYLE_ROW: string =      "row";
