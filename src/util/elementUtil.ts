@@ -10,6 +10,18 @@ export function getWidth(element: HTMLElement): number {
   }
 }
 
+export function getHeight(element: HTMLElement): number {
+  if (!element) {
+    return 0.0;
+  }
+  if (element.getBoundingClientRect()) {
+    let rect = element.getBoundingClientRect();
+    return rect.bottom - rect.top;
+  } else {
+    return element.offsetHeight;
+  }
+}
+
 export function getRight(element: HTMLElement): number {
   if (!element) {
     return 0.0;
