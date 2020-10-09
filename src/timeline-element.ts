@@ -148,7 +148,7 @@ export class TimelineElement extends LitElement {
    * resolutionDiv contains the resolution specific elements that represents a
    * timeline's sub-parts like hour, day or week.
    */
-  private resolutionDiv: HTMLDivElement;
+  public resolutionDiv: HTMLDivElement;
   private resSpacerDiv: HTMLDivElement;
   private spacerBlocks: HTMLDivElement[] = [];
 
