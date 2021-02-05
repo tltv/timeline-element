@@ -85,15 +85,17 @@ export class TimelineElement extends LitElement {
     } 
   }) 
   public startDateTime: Date;
-  /* Inclusive end Date (millisecond accuracy) */
+  /* Inclusive end Date (millisecond accuracy). Attribute is converted from exclusive to inclusive by decrementing by one millisecond and vice versa. */
   @property({ 
     reflect: true, 
     converter: {
       fromAttribute: (value: string, type) => { 
-        return toDate(value);
+        let exclusive = toDate(value);
+        return (exclusive) ? new Date(exclusive.getTime() - 1) : exclusive;
       },
       toAttribute: (value: Date, type) => { 
-        return format(value, "yyyy-MM-dd'T'HH:mm:ss");
+        let exclusive = (value) ? new Date(value.getTime() + 1) : value;
+        return format(exclusive, "yyyy-MM-dd'T'HH:mm:ss");
       }
     } 
   }) 
