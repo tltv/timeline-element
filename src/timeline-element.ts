@@ -77,28 +77,23 @@ export class TimelineElement extends LitElement {
     reflect: true,
     converter: {
       fromAttribute: (value: string, type) => { 
-        return toDate(value);
+        return (value) ? (value.length > 13) ? value.substring(0, 13) : value : value;
       },
-      toAttribute: (value: Date, type) => { 
-        return format(value, "yyyy-MM-dd'T'HH");
-      }
     } 
   })
-  public startDateTime: Date;
+  public startDateTime: string;
   /* Inclusive end Date for Day/Week resolution. Exclusive for Hour resolution. (hour accuracy) */
   @property({ 
     reflect: true, 
     converter: {
       fromAttribute: (value: string, type) => { 
-        return toDate(value);
+        return (value) ? (value.length > 13) ? value.substring(0, 13) : value : value;
       },
-      toAttribute: (value: Date, type) => { 
-        return format(value, "yyyy-MM-dd'T'HH");
-      }
     } 
   }) 
-  public endDateTime: Date;
-  public internalEndDateTime: Date; // internalEndDateTime may be adjusted for resolution
+  public endDateTime: string;
+  public internalInclusiveStartDateTime: Date;
+  public internalInclusiveEndDateTime: Date; // internalEndDateTime may be adjusted for resolution
   @property({ reflect: true}) 
   public timeZone: string = "Europe/London";
   @property({ reflect: true}) 
@@ -330,16 +325,23 @@ export class TimelineElement extends LitElement {
     if (changedProps.has('resolution')) {
       this.minResolutionWidth = -1;
     }
-    if (changedProps.has('endDateTime')) {
+    if(changedProps.has('startDateTime')) {
       if(this.resolution === Resolution.Hour)  {
-        // when its hour resolution, given time must be always exact hour in millisecod accuracy 1AM means exactly "01:00:00.000".
-        // convert given time to last millisecond in the given hour. 1AM becomes "01:59:59.999" set to internalEndDateTime.
-        this.internalEndDateTime = (this.endDateTime) ? new Date(this.endDateTime.getTime() + 3600000 - 1) : this.endDateTime;
+        this.internalInclusiveStartDateTime = toDate(this.startDateTime);
       } else {
-        this.internalEndDateTime = this.endDateTime;
+        this.internalInclusiveStartDateTime = toDate(this.startDateTime.substring(0, 10) + 'T00:00:00.000');
       }
     }
-    this.updateTimeLine(this.resolution, this.startDateTime, this.internalEndDateTime, new DefaultLocaleDataProvider(this.locale, this.timeZone, this.firstDayOfWeek, this.twelveHourClock));
+    if (changedProps.has('endDateTime')) {
+      // given time must be always exact hour in millisecod accuracy 1AM means exactly "01:00:00.000".
+      if(this.resolution === Resolution.Hour)  {
+        // convert given time to last millisecond in the given hour. 1AM becomes "01:59:59.999" set to internalEndDateTime.
+        this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 13) + ':59:59.999');
+      } else {
+        this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 10) + 'T23:59:59.999');
+      }
+    }
+    this.updateTimeLine(this.resolution, this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime, new DefaultLocaleDataProvider(this.locale, this.timeZone, this.firstDayOfWeek, this.twelveHourClock));
   }
   
   /**
@@ -391,9 +393,9 @@ export class TimelineElement extends LitElement {
     }
 
     if (this.resolution === Resolution.Day || this.resolution === Resolution.Week) {
-      this.prepareTimelineForDayOrWeekResolution(this.startDateTime, this.internalEndDateTime);
+      this.prepareTimelineForDayOrWeekResolution(this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime);
     } else if (this.resolution === Resolution.Hour) {
-      this.prepareTimelineForHourResolution(this.startDateTime, this.internalEndDateTime);
+      this.prepareTimelineForHourResolution(this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime);
     } else {
       console.log("TimelineElement resolution " + (this.resolution ? Resolution[this.resolution] : "null")
         + " is not supported");
@@ -419,12 +421,12 @@ export class TimelineElement extends LitElement {
   }
 
   resetDateRange(startDate: Date, endDate: Date) {
-    this.startDateTime = startDate;
-    this.internalEndDateTime = endDate;
-    this.normalStartDate = this.toNormalDate(this.startDateTime);
-    this.normalEndDate = this.toNormalDate(this.internalEndDateTime);
-    this.firstDayOfRange = this.firstDayOfRange || this.startDateTime.getDay();
-    this.firstHourOfRange = this.firstHourOfRange || this.startDateTime.getHours();
+    this.internalInclusiveStartDateTime = startDate;
+    this.internalInclusiveEndDateTime = endDate;
+    this.normalStartDate = this.toNormalDate(this.internalInclusiveStartDateTime);
+    this.normalEndDate = this.toNormalDate(this.internalInclusiveEndDateTime);
+    this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay();
+    this.firstHourOfRange = this.firstHourOfRange || this.internalInclusiveStartDateTime.getHours();
   }
 
   registerScrollHandler() {
@@ -938,7 +940,7 @@ export class TimelineElement extends LitElement {
    * @return
    */
   public getWidthPercentageStringForDateInterval(interval: number): string {
-    let range: number = this.internalEndDateTime.getTime() - this.startDateTime.getTime();
+    let range: number = this.internalInclusiveEndDateTime.getTime() - this.internalInclusiveStartDateTime.getTime();
     return this.getWidthPercentageStringForDateIntervalForRange(interval, range);
   }
 
@@ -960,7 +962,7 @@ export class TimelineElement extends LitElement {
    * @return Left offset in pixels.
    */
   public getLeftPositionForDate(date: Date): number {
-    return this.getLeftPositionForDateRange(date, this.getResolutionWidth(), this.startDateTime, this.internalEndDateTime);
+    return this.getLeftPositionForDateRange(date, this.getResolutionWidth(), this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime);
   }
 
   public getLeftPositionForDateRange(date: Date, rangeWidth: number, rangeStartDate: Date, rangeEndDate: Date): number {
@@ -998,7 +1000,7 @@ export class TimelineElement extends LitElement {
     }
     let p: number = range / width;
     let offset: number = p * left;
-    let date: Date = new Date(this.startDateTime.getTime() + offset);
+    let date: Date = new Date(this.internalInclusiveStartDateTime.getTime() + offset);
 
     console.log("Zoned: " + this.localeDataProvider.formatDate(date, "dd. HH:mm") + "  DST: "
       + this.localeDataProvider.getDaylightAdjustment(date) / 60000);
@@ -1028,8 +1030,8 @@ export class TimelineElement extends LitElement {
      * Notice extra block(s) or missing block(s) in range when start time is
      * in DST and end time is not, or vice versa.
      */
-    let dstStart = this.localeDataProvider.getDaylightAdjustment(this.startDateTime);
-    let dstEnd = this.localeDataProvider.getDaylightAdjustment(this.internalEndDateTime);
+    let dstStart = this.localeDataProvider.getDaylightAdjustment(this.internalInclusiveStartDateTime);
+    let dstEnd = this.localeDataProvider.getDaylightAdjustment(this.internalInclusiveEndDateTime);
     if (dstStart > dstEnd) {
       range -= Math.abs(dstStart - dstEnd);
     } else if (dstEnd > dstStart) {
@@ -1289,7 +1291,7 @@ export class TimelineElement extends LitElement {
 
     let containerWidth: number = ElementUtil.getWidth(this.getParentElement(this));
     this.fillTimelineForResolution(leftDate,
-      new Date(Math.min(this.internalEndDateTime.getTime(), this.getDateForLeftPositionNoticeDST(datePos + containerWidth, noticeDst).getTime())), left);
+      new Date(Math.min(this.internalInclusiveEndDateTime.getTime(), this.getDateForLeftPositionNoticeDST(datePos + containerWidth, noticeDst).getTime())), left);
 
     this.style.setProperty("--timeline-col-position", "relative");
     this.style.setProperty("--timeline-col-left", left + "px");
@@ -1300,7 +1302,7 @@ export class TimelineElement extends LitElement {
   showAllResolutionBlocks() {
     this.style.setProperty("--timeline-col-position", "relative");
     this.style.setProperty("--timeline-col-left", "0px");
-    this.fillTimelineForResolution(this.startDateTime, this.internalEndDateTime, 0);
+    this.fillTimelineForResolution(this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime, 0);
   }
 
   fillTimelineForResolution(startDate: Date, endDate: Date, left: number) {
