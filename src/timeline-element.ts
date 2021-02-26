@@ -325,14 +325,14 @@ export class TimelineElement extends LitElement {
     if (changedProps.has('resolution')) {
       this.minResolutionWidth = -1;
     }
-    if(changedProps.has('startDateTime')) {
+    if(changedProps.has('resolution') || changedProps.has('startDateTime')) {
       if(this.resolution === Resolution.Hour)  {
         this.internalInclusiveStartDateTime = toDate(this.startDateTime);
       } else {
         this.internalInclusiveStartDateTime = toDate(this.startDateTime.substring(0, 10) + 'T00:00:00.000');
       }
     }
-    if (changedProps.has('endDateTime')) {
+    if (changedProps.has('resolution') || changedProps.has('endDateTime')) {
       // given time must be always exact hour in millisecod accuracy 1AM means exactly "01:00:00.000".
       if(this.resolution === Resolution.Hour)  {
         // convert given time to last millisecond in the given hour. 1AM becomes "01:59:59.999" set to internalEndDateTime.
