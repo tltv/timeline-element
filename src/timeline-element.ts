@@ -82,7 +82,7 @@ export class TimelineElement extends LitElement {
     } 
   })
   public startDateTime: string;
-  /* Inclusive end Date for Day/Week resolution. Exclusive for Hour resolution. (hour accuracy) */
+  /* Inclusive end Date (hour accuracy) */
   @property({ 
     reflect: true, 
     converter: {
