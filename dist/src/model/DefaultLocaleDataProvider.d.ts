@@ -1,3 +1,4 @@
+import { ILocaleDataProvider } from './ILocaleDataProvider';
 export declare class DefaultLocaleDataProvider implements ILocaleDataProvider {
     locale: string;
     timeZone: string;

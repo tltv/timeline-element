@@ -2,9 +2,9 @@ import { LitElement } from 'lit-element';
 import { Resolution } from './model/Resolution';
 import { Weekday } from './model/Weekday';
 import { BlockRowData } from './model/blockRowData';
-import './model/ILocaleDataProvider.ts';
-import './model/IResolutionBlockFiller.ts';
-import './model/IResolutionBlockRegisterer.ts';
+import { ILocaleDataProvider } from './model/ILocaleDataProvider';
+import { IResolutionBlockFiller } from './model/IResolutionBlockFiller';
+import { IResolutionBlockRegisterer } from './model/IResolutionBlockRegisterer';
 /**
  * Scalable timeline web component that supports more than one
  * resolutions ({@link Resolution}). When timeline element doesn't overflow

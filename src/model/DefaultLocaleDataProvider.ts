@@ -1,4 +1,5 @@
 import { zonedTimeToUtc, utcToZonedTime, format } from 'date-fns-tz';
+import { ILocaleDataProvider } from './ILocaleDataProvider';
 
 export class DefaultLocaleDataProvider implements ILocaleDataProvider {
 

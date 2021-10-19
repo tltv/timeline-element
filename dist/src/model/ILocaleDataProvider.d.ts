@@ -1,4 +1,4 @@
-interface ILocaleDataProvider {
+export interface ILocaleDataProvider {
     /**
      * Returns month names in order starting from January.
      *
