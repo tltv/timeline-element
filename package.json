@@ -25,7 +25,8 @@
     "watch": "webpack --watch",
     "start": "webpack-dev-server --open",
     "server": "node server.js",
-    "build": "webpack"
+    "build": "webpack",
+    "tsc": "tsc"
   },
   "repository": {
     "type": "git",
