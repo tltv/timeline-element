@@ -6,9 +6,6 @@ module.exports = {
   mode: 'development',
   entry: './src/timeline-element.ts',
   devtool: 'inline-source-map',
-  devServer: {
-    contentBase: './dist',
-  },
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
@@ -29,7 +26,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ],
   },
   output: {
-    filename: 'main.js',
+    filename: 'timeline-element.js',
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
   },
