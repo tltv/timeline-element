@@ -1,6 +1,6 @@
 {
   "name": "tltv-timeline-element",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Timeline web component",
   "main": "timeline-element.js",
   "module": "timeline-element.js",
