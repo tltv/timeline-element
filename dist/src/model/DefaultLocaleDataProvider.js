@@ -7,6 +7,7 @@ export class DefaultLocaleDataProvider {
         this.firstDayOfWeek = 1; // sunday
         this.monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         this.weekDayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        this._offsetCache = new Map();
         this.locale = locale;
         this.timeZone = timeZone;
         this.firstDayOfWeek = firstDayOfWeek;
@@ -34,10 +35,9 @@ export class DefaultLocaleDataProvider {
         return this.timeZone;
     }
     getDaylightAdjustment(zonedDate) {
-        let jan = new Date(`${zonedDate.getFullYear()}-01-01T00:00:00Z`);
-        let jul = new Date(`${zonedDate.getFullYear()}-07-01T00:00:00Z`);
-        let janOffset = this.getTimezoneOffset(jan);
-        let julOffset = this.getTimezoneOffset(jul);
+        let fullYear = zonedDate.getFullYear();
+        let janOffset = this._getOffset(fullYear, "01", this._offsetCache);
+        let julOffset = this._getOffset(fullYear, "07", this._offsetCache);
         if (janOffset !== julOffset) {
             let maxOffset = Math.max(janOffset, julOffset);
             let targetOffset = this.getTimezoneOffset(zonedDate);
@@ -50,10 +50,9 @@ export class DefaultLocaleDataProvider {
         return 0;
     }
     isDaylightTime(zonedDate) {
-        let jan = new Date(`${zonedDate.getFullYear()}-01-01T00:00:00Z`);
-        let jul = new Date(`${zonedDate.getFullYear()}-07-01T00:00:00Z`);
-        let janOffset = this.getTimezoneOffset(jan);
-        let julOffset = this.getTimezoneOffset(jul);
+        let fullYear = zonedDate.getFullYear();
+        let janOffset = this._getOffset(fullYear, "01", this._offsetCache);
+        let julOffset = this._getOffset(fullYear, "07", this._offsetCache);
         if (janOffset !== julOffset) {
             let maxOffset = Math.max(janOffset, julOffset);
             let targetOffset = this.getTimezoneOffset(zonedDate);
@@ -75,6 +74,14 @@ export class DefaultLocaleDataProvider {
             return tzOffset * 60000;
         }
         return 0;
+    }
+    _getOffset(fullYear, month, cache) {
+        const key = `${fullYear}-${month}`;
+        if (!cache.get(key)) {
+            let jan = new Date(`${fullYear}-${month}-01T00:00:00Z`);
+            cache.set(key, this.getTimezoneOffset(jan));
+        }
+        return cache.get(key);
     }
 }
 //# sourceMappingURL=DefaultLocaleDataProvider.js.map

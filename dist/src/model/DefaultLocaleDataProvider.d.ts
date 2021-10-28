@@ -6,6 +6,7 @@ export declare class DefaultLocaleDataProvider implements ILocaleDataProvider {
     firstDayOfWeek: number;
     monthNames: string[];
     weekDayNames: string[];
+    _offsetCache: Map<string, number>;
     constructor(locale: string, timeZone: string, firstDayOfWeek: number, twelveHourClock: boolean);
     getMonthNames(): string[];
     getWeekdayNames(): string[];
@@ -17,4 +18,5 @@ export declare class DefaultLocaleDataProvider implements ILocaleDataProvider {
     getDaylightAdjustment(zonedDate: Date): number;
     isDaylightTime(zonedDate: Date): boolean;
     getTimezoneOffset(zonedDate: Date): number;
+    _getOffset(fullYear: number, month: string, cache: Map<string, number>): number;
 }
