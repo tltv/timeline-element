@@ -1,4 +1,4 @@
-import { LitElement } from 'lit-element';
+import { LitElement } from 'lit';
 import { Resolution } from './model/Resolution';
 import { Weekday } from './model/Weekday';
 import { BlockRowData } from './model/blockRowData';
@@ -106,7 +106,7 @@ export declare class TimelineElement extends LitElement {
     private previousContainerScrollTop;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    static get styles(): import("lit-element").CSSResult;
+    static get styles(): import("lit").CSSResult;
     render(): unknown;
     shouldUpdate(changedProperties: any): any;
     updated(changedProps: any): void;

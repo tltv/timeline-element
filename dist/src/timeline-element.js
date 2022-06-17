@@ -5,7 +5,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var TimelineElement_1;
-import { LitElement, css, property, customElement } from 'lit-element';
+import { LitElement, css } from 'lit';
+import { property, customElement } from 'lit/decorators.js';
 import { toDate } from 'date-fns-tz';
 import { Resolution } from './model/Resolution';
 import { Weekday } from './model/Weekday';
