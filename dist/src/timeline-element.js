@@ -5,7 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var TimelineElement_1;
-import { LitElement, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 import { toDate } from 'date-fns-tz';
 import { Resolution } from './model/Resolution';
@@ -16,6 +16,7 @@ import { DateTimeConstants } from './util/dateTimeUtil';
 import * as ElementUtil from './util/elementUtil';
 import { DefaultLocaleDataProvider } from './model/DefaultLocaleDataProvider';
 import { getISOWeek } from 'date-fns';
+import { query } from 'lit-element/decorators.js';
 /**
  * Scalable timeline web component that supports more than one
  * resolutions ({@link Resolution}). When timeline element doesn't overflow
@@ -206,7 +207,29 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
     `;
     }
     render() {
-        return super.render();
+        return html `
+      ${this.yearBlocks()}
+      ${this.monthBlocks()}
+      ${this.dayBlocks()}
+      <div id="resolutionDiv" class="row resolution"></div>`;
+    }
+    yearBlocks() {
+        if (this.yearRowVisible) {
+            return this.timelineBlocks(this.yearRowData, TimelineElement_1.STYLE_YEAR);
+        }
+        return nothing;
+    }
+    monthBlocks() {
+        if (this.monthRowVisible) {
+            return this.timelineBlocks(this.monthRowData, TimelineElement_1.STYLE_MONTH);
+        }
+        return nothing;
+    }
+    dayBlocks() {
+        if (this.isDayRowVisible) {
+            return this.timelineBlocks(this.dayRowData, TimelineElement_1.STYLE_DAY);
+        }
+        return nothing;
     }
     shouldUpdate(changedProperties) {
         return changedProperties.has('resolution')
@@ -221,7 +244,7 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
             || changedProperties.has('monthNames')
             || changedProperties.has('weekdayNames');
     }
-    updated(changedProps) {
+    willUpdate(changedProps) {
         if (changedProps.has('resolution')) {
             this.minResolutionWidth = -1;
         }
@@ -244,6 +267,20 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
             }
         }
         this.updateTimeLine(this.resolution, this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime, new DefaultLocaleDataProvider(this.locale, this.timeZone, this.firstDayOfWeek, this.twelveHourClock));
+    }
+    updated(changedProps) {
+        if (!(this.resolution) || !this.internalInclusiveStartDateTime || !this.internalInclusiveEndDateTime) {
+            return;
+        }
+        if (this.resolution !== Resolution.Day && this.resolution !== Resolution.Week && this.resolution !== Resolution.Hour) {
+            console.log("TimelineElement resolution " + (this.resolution ? Resolution[this.resolution] : "null")
+                + " is not supported");
+            return;
+        }
+        console.log("TimelineElement Constructed content.");
+        this.updateWidths();
+        console.log("TimelineElement is updated for resolution " + Resolution[this.resolution] + ".");
+        this.registerScrollHandler();
     }
     /**
      * <p>
@@ -283,8 +320,6 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         this.lastDayOfWeek = (localeDataProvider.getFirstDayOfWeek() == 1) ? 7 : Math.max((localeDataProvider.getFirstDayOfWeek() - 1) % 8, 1);
         this.monthNames = this.monthNames || localeDataProvider.getMonthNames();
         this.weekdayNames = this.weekdayNames || localeDataProvider.getWeekdayNames();
-        this.resolutionDiv = document.createElement('div');
-        this.resolutionDiv.classList.add(TimelineElement_1.STYLE_ROW, TimelineElement_1.STYLE_RESOLUTION);
         if (this.minResolutionWidth < 0) {
             this.minResolutionWidth = this.calculateResolutionMinWidth();
         }
@@ -294,25 +329,6 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         else if (this.resolution === Resolution.Hour) {
             this.prepareTimelineForHourResolution(this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime);
         }
-        else {
-            console.log("TimelineElement resolution " + (this.resolution ? Resolution[this.resolution] : "null")
-                + " is not supported");
-            return;
-        }
-        if (this.yearRowVisible) {
-            this.appendTimelineBlocks(this.yearRowData, TimelineElement_1.STYLE_YEAR);
-        }
-        if (this.monthRowVisible) {
-            this.appendTimelineBlocks(this.monthRowData, TimelineElement_1.STYLE_MONTH);
-        }
-        if (this.isDayRowVisible()) {
-            this.appendTimelineBlocks(this.dayRowData, TimelineElement_1.STYLE_DAY);
-        }
-        this.shadowRoot.appendChild(this.resolutionDiv);
-        console.log("TimelineElement Constructed content.");
-        this.updateWidths();
-        console.log("TimelineElement is updated for resolution " + Resolution[resolution] + ".");
-        this.registerScrollHandler();
     }
     resetDateRange(startDate, endDate) {
         this.internalInclusiveStartDateTime = startDate;
@@ -365,27 +381,14 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         return scrollContainer;
     }
     clear() {
-        let styles = [];
-        this.shadowRoot.childNodes.forEach(element => {
-            if (element.nodeName === "STYLE") {
-                styles.push(element);
-            }
-        });
-        while (this.shadowRoot.firstChild) {
-            this.shadowRoot.removeChild(this.shadowRoot.firstChild);
-        }
-        styles.forEach(style => this.shadowRoot.appendChild(style));
         this.spacerBlocks = [];
         this.yearRowData.clear();
         this.monthRowData.clear();
         this.dayRowData.clear();
     }
     calculateResolutionMinWidth() {
-        let removeResolutionDiv = false;
-        if (!this.getParentElement(this.resolutionDiv)) {
-            removeResolutionDiv = true;
-            this.shadowRoot.appendChild(this.resolutionDiv);
-        }
+        let resDivMeasure = document.createElement('div');
+        resDivMeasure.classList.add(TimelineElement_1.STYLE_ROW, TimelineElement_1.STYLE_RESOLUTION);
         let resBlockMeasure = document.createElement('div');
         if (this.resolution === Resolution.Week) {
             // configurable with '.col.w.measure' selector
@@ -397,17 +400,15 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
             // configurable with '.col.measure' selector
             resBlockMeasure.classList.add(TimelineElement_1.STYLE_COL, TimelineElement_1.STYLE_MEASURE);
         }
-        this.resolutionDiv.appendChild(resBlockMeasure);
+        resDivMeasure.appendChild(resBlockMeasure);
+        this.shadowRoot.appendChild(resDivMeasure);
         let width = resBlockMeasure.clientWidth;
         if (this.resolution === Resolution.Week) {
             // divide given width by number of days in week
             width = width / DateTimeConstants.DAYS_IN_WEEK;
         }
         width = (width < this.resolutionWeekDayblockWidth) ? this.resolutionWeekDayblockWidth : width;
-        resBlockMeasure.parentNode.removeChild(resBlockMeasure);
-        if (removeResolutionDiv) {
-            this.resolutionDiv.parentNode.removeChild(this.resolutionDiv);
-        }
+        this.shadowRoot.removeChild(resDivMeasure);
         return width;
     }
     registerHourResolutionBlock() {
@@ -430,13 +431,15 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         }
         this.blocksInRange++;
     }
-    appendTimelineBlocks(rowData, style) {
+    timelineBlocks(rowData, style) {
+        const itemTemplates = [];
         for (let entry of rowData.getBlockEntries()) {
-            this.shadowRoot.appendChild(entry[1]);
+            itemTemplates.push(html `${entry[1]}`);
         }
         if (this.isAlwaysCalculatePixelWidths()) {
-            this.shadowRoot.appendChild(this.createSpacerBlock(style));
+            itemTemplates.push(html `${this.createSpacerBlock(style)}`);
         }
+        return itemTemplates;
     }
     /**
    * Returns true if Widget is set to calculate widths by itself. Default is
@@ -1725,6 +1728,9 @@ __decorate([
 __decorate([
     property()
 ], TimelineElement.prototype, "weekdayNames", void 0);
+__decorate([
+    query('#resolutionDiv')
+], TimelineElement.prototype, "resolutionDiv", void 0);
 TimelineElement = TimelineElement_1 = __decorate([
     customElement('timeline-element')
 ], TimelineElement);

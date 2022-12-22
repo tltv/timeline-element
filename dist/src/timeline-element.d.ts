@@ -1,4 +1,4 @@
-import { LitElement } from 'lit';
+import { LitElement, nothing } from 'lit';
 import { Resolution } from './model/Resolution';
 import { Weekday } from './model/Weekday';
 import { BlockRowData } from './model/blockRowData';
@@ -107,9 +107,13 @@ export declare class TimelineElement extends LitElement {
     connectedCallback(): void;
     disconnectedCallback(): void;
     static get styles(): import("lit").CSSResult;
-    render(): unknown;
+    render(): import("lit-html").TemplateResult<1>;
+    yearBlocks(): typeof nothing | import("lit-html").TemplateResult<1>[];
+    monthBlocks(): typeof nothing | import("lit-html").TemplateResult<1>[];
+    dayBlocks(): typeof nothing | import("lit-html").TemplateResult<1>[];
     shouldUpdate(changedProperties: any): any;
-    updated(changedProps: any): void;
+    willUpdate(changedProps: any): void;
+    protected updated(changedProps: any): void;
     /**
      * <p>
      * Updates the content of this component. Builds the time-line and calculates
@@ -140,7 +144,7 @@ export declare class TimelineElement extends LitElement {
     registerHourResolutionBlock(): void;
     registerDayResolutionBlock(): void;
     registerWeekResolutionBlock(index: number, weekDay: Weekday, lastBlock: boolean, firstWeek: boolean): void;
-    appendTimelineBlocks(rowData: BlockRowData, style: string): void;
+    timelineBlocks(rowData: BlockRowData, style: string): import("lit-html").TemplateResult<1>[];
     /**
    * Returns true if Widget is set to calculate widths by itself. Default is
    * false.
