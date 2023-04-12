@@ -335,7 +335,9 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         this.internalInclusiveEndDateTime = endDate;
         this.normalStartDate = this.toNormalDate(this.internalInclusiveStartDateTime);
         this.normalEndDate = this.toNormalDate(this.internalInclusiveEndDateTime);
-        this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay();
+        // Date#getDay() is zero-based: Sunday = 0, Monday = 1, ...
+        // this.firstDayOfRange is 1-based (Sunday = 1).
+        this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay() + 1;
         this.firstHourOfRange = this.firstHourOfRange || this.internalInclusiveStartDateTime.getHours();
     }
     registerScrollHandler() {
@@ -1632,7 +1634,6 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         }
     }
 };
-TimelineElement.STYLE_TIMELINE = "timeline";
 TimelineElement.STYLE_ROW = "row";
 TimelineElement.STYLE_COL = "col";
 TimelineElement.STYLE_MONTH = "month";
@@ -1640,9 +1641,6 @@ TimelineElement.STYLE_YEAR = "year";
 TimelineElement.STYLE_DAY = "day";
 TimelineElement.STYLE_WEEK = "w";
 TimelineElement.STYLE_RESOLUTION = "resolution";
-TimelineElement.STYLE_WEEK_FIRST = "week-f";
-TimelineElement.STYLE_WEEK_LAST = "week-l";
-TimelineElement.STYLE_WEEK_MIDDLE = "week-m";
 TimelineElement.STYLE_EVEN = "even";
 TimelineElement.STYLE_WEEKEND = "weekend";
 TimelineElement.STYLE_SPACER = "spacer";

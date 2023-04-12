@@ -26,7 +26,7 @@ export class DefaultLocaleDataProvider implements ILocaleDataProvider {
         return this.weekDayNames;
     }
     getFirstDayOfWeek(): number {
-        return this.firstDayOfWeek + 1;
+        return this.firstDayOfWeek;
     }
     formatDate(date: Date, pattern: string): string {
         return format(date, pattern, { timeZone: this.getTimeZone() });

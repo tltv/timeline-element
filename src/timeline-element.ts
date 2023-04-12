@@ -1,4 +1,4 @@
-import { LitElement, html, css, nothing, PropertyValueMap } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 import { zonedTimeToUtc, utcToZonedTime, toDate, format } from 'date-fns-tz'
 import { Resolution } from './model/Resolution';
@@ -41,17 +41,13 @@ import { query } from 'lit-element/decorators.js';
 @customElement('timeline-element')
 export class TimelineElement extends LitElement {
 
-  private static readonly STYLE_TIMELINE: string =  "timeline";
-  private static readonly  STYLE_ROW: string =      "row";
+  private static readonly STYLE_ROW: string =       "row";
   private static readonly STYLE_COL: string =       "col";
   private static readonly STYLE_MONTH: string =     "month";
   private static readonly STYLE_YEAR: string =      "year";
   private static readonly STYLE_DAY: string =       "day";
   private static readonly STYLE_WEEK: string =      "w";
   private static readonly STYLE_RESOLUTION: string = "resolution";
-  private static readonly STYLE_WEEK_FIRST: string = "week-f";
-  private static readonly STYLE_WEEK_LAST: string = "week-l";
-  private static readonly STYLE_WEEK_MIDDLE: string = "week-m";
   private static readonly STYLE_EVEN: string =      "even";
   private static readonly STYLE_WEEKEND: string =   "weekend";
   private static readonly STYLE_SPACER: string =    "spacer";
@@ -108,7 +104,7 @@ export class TimelineElement extends LitElement {
   @property() normalStartDate: Date;
   @property() normalEndDate: Date;
   @property() lastDayOfWeek: number;
-  /* First day of the whole range. Allowed values are 1-7. 1 is Sunday. Required with {@link Resolution#Week}. */
+  /* First day of the whole range. Allowed values are 1-7. 1 is Sunday. Required with {@link Resolution#Week} and weekend tracking. */
   @property() firstDayOfRange: number;
   /* First hour of the range. Allowed values are 0-23. Required with {@link Resolution#Hour}. */
   @property() firstHourOfRange: number;
@@ -136,7 +132,6 @@ export class TimelineElement extends LitElement {
   private lastResBlockCount: number = 0;
   private firstDay: boolean;
   private timelineOverflowingHorizontally: boolean;
-  private noticeVerticalScrollbarWidth: boolean;
   private monthFormat: string;
   private yearFormat: string;
   private weekFormat: string;
@@ -448,7 +443,9 @@ export class TimelineElement extends LitElement {
     this.internalInclusiveEndDateTime = endDate;
     this.normalStartDate = this.toNormalDate(this.internalInclusiveStartDateTime);
     this.normalEndDate = this.toNormalDate(this.internalInclusiveEndDateTime);
-    this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay();
+    // Date#getDay() is zero-based: Sunday = 0, Monday = 1, ...
+    // this.firstDayOfRange is 1-based (Sunday = 1).
+    this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay() + 1;
     this.firstHourOfRange = this.firstHourOfRange || this.internalInclusiveStartDateTime.getHours();
   }
 

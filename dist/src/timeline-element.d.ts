@@ -30,7 +30,6 @@ import { IResolutionBlockRegisterer } from './model/IResolutionBlockRegisterer';
  *
  */
 export declare class TimelineElement extends LitElement {
-    private static readonly STYLE_TIMELINE;
     private static readonly STYLE_ROW;
     private static readonly STYLE_COL;
     private static readonly STYLE_MONTH;
@@ -38,9 +37,6 @@ export declare class TimelineElement extends LitElement {
     private static readonly STYLE_DAY;
     private static readonly STYLE_WEEK;
     private static readonly STYLE_RESOLUTION;
-    private static readonly STYLE_WEEK_FIRST;
-    private static readonly STYLE_WEEK_LAST;
-    private static readonly STYLE_WEEK_MIDDLE;
     private static readonly STYLE_EVEN;
     private static readonly STYLE_WEEKEND;
     private static readonly STYLE_SPACER;
@@ -76,7 +72,6 @@ export declare class TimelineElement extends LitElement {
     private lastResBlockCount;
     private firstDay;
     private timelineOverflowingHorizontally;
-    private noticeVerticalScrollbarWidth;
     private monthFormat;
     private yearFormat;
     private weekFormat;

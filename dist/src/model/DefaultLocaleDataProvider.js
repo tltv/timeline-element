@@ -20,7 +20,7 @@ export class DefaultLocaleDataProvider {
         return this.weekDayNames;
     }
     getFirstDayOfWeek() {
-        return this.firstDayOfWeek + 1;
+        return this.firstDayOfWeek;
     }
     formatDate(date, pattern) {
         return format(date, pattern, { timeZone: this.getTimeZone() });
