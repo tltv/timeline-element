@@ -349,6 +349,7 @@ export class TimelineElement extends LitElement {
       this.minResolutionWidth = -1;
     }
     if(changedProps.has('resolution') || changedProps.has('startDateTime')) {
+      this.firstDayOfRange = null;
       if(this.resolution === Resolution.Hour)  {
         this.internalInclusiveStartDateTime = toDate(this.startDateTime);
       } else {
