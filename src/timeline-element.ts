@@ -97,7 +97,7 @@ export class TimelineElement extends LitElement {
   @property({ reflect: true}) 
   public locale: string = "en-US";
   @property({ reflect: true}) firstDayOfWeek: number = 1; // sunday;
-  @property({ reflect: true }) twelveHourClock: boolean = false;
+  @property({ reflect: true, type: Boolean }) twelveHourClock: boolean = false;
 
   @property() minWidth: number;
 

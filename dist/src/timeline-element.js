@@ -1692,7 +1692,7 @@ __decorate([
     property({ reflect: true })
 ], TimelineElement.prototype, "firstDayOfWeek", void 0);
 __decorate([
-    property({ reflect: true })
+    property({ reflect: true, type: Boolean })
 ], TimelineElement.prototype, "twelveHourClock", void 0);
 __decorate([
     property()
