@@ -46,6 +46,7 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         super(...arguments);
         this.resolutionWeekDayblockWidth = 4;
         this.resolution = Resolution.Day;
+        /** Timezone for date and time formatting. Doesn't match with actual start and end Date object's time zone. */
         this.timeZone = "Europe/London";
         this.locale = "en-US";
         this.firstDayOfWeek = 1; // sunday;
@@ -248,23 +249,23 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         if (changedProps.has('resolution')) {
             this.minResolutionWidth = -1;
         }
-        if (changedProps.has('resolution') || changedProps.has('startDateTime')) {
+        if (changedProps.has('resolution') || changedProps.has('startDateTime') || changedProps.has('timeZone')) {
             this.firstDayOfRange = null;
             if (this.resolution === Resolution.Hour) {
-                this.internalInclusiveStartDateTime = toDate(this.startDateTime);
+                this.internalInclusiveStartDateTime = toDate(this.startDateTime, { timeZone: this.timeZone });
             }
             else {
-                this.internalInclusiveStartDateTime = toDate(this.startDateTime.substring(0, 10) + 'T00:00:00.000');
+                this.internalInclusiveStartDateTime = toDate(this.startDateTime.substring(0, 10) + 'T00:00:00.000', { timeZone: this.timeZone });
             }
         }
-        if (changedProps.has('resolution') || changedProps.has('endDateTime')) {
+        if (changedProps.has('resolution') || changedProps.has('endDateTime') || changedProps.has('timeZone')) {
             // given time must be always exact hour in millisecod accuracy 1AM means exactly "01:00:00.000".
             if (this.resolution === Resolution.Hour) {
                 // convert given time to last millisecond in the given hour. 1AM becomes "01:59:59.999" set to internalEndDateTime.
-                this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 13) + ':59:59.999');
+                this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 13) + ':59:59.999', { timeZone: this.timeZone });
             }
             else {
-                this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 10) + 'T23:59:59.999');
+                this.internalInclusiveEndDateTime = toDate(this.endDateTime.substring(0, 10) + 'T23:59:59.999', { timeZone: this.timeZone });
             }
         }
         this.updateTimeLine(this.resolution, this.internalInclusiveStartDateTime, this.internalInclusiveEndDateTime, new DefaultLocaleDataProvider(this.locale, this.timeZone, this.firstDayOfWeek, this.twelveHourClock));
@@ -338,8 +339,8 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         this.normalEndDate = this.toNormalDate(this.internalInclusiveEndDateTime);
         // Date#getDay() is zero-based: Sunday = 0, Monday = 1, ...
         // this.firstDayOfRange is 1-based (Sunday = 1).
-        this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay() + 1;
-        this.firstHourOfRange = this.firstHourOfRange || this.internalInclusiveStartDateTime.getHours();
+        this.firstDayOfRange = this.firstDayOfRange || this.internalInclusiveStartDateTime.getDay() + 1; // TODO is weekday still correct here?
+        this.firstHourOfRange = this.firstHourOfRange || parseInt(this.localeDataProvider.formatTime(this.internalInclusiveStartDateTime, "HH"));
     }
     registerScrollHandler() {
         if (this.scrollHandler) {
@@ -478,7 +479,7 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
     getDay(date) {
         // by adjusting the date to the middle of the day before formatting is a
         // workaround to avoid DST issues with DateTimeFormatter.
-        let adjusted = DateUtil.adjustToMiddleOfDay(date, this.localeDataProvider.getLocale());
+        let adjusted = DateUtil.adjustToMiddleOfDay(date, this.localeDataProvider.getTimeZone());
         return this.localeDataProvider.formatDate(adjusted, "d");
     }
     getYear(date) {
@@ -649,7 +650,7 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
         let currentYear = null;
         let currentMonth = null;
         let currentDay = null;
-        let pos = DateUtil.adjustToMiddleOfDay(startDate, this.localeDataProvider.getLocale());
+        let pos = DateUtil.adjustToMiddleOfDay(startDate, this.localeDataProvider.getTimeZone());
         let end = endDate;
         let index = 0;
         let lastTimelineBlock = false;
@@ -1545,7 +1546,7 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
     fillTimelineForDayOrWeek(interval, startDate, endDate, resBlockFiller) {
         let currentYear = null;
         let pos = startDate;
-        pos = DateUtil.adjustToMiddleOfDay(pos, this.localeDataProvider.getLocale());
+        pos = DateUtil.adjustToMiddleOfDay(pos, this.localeDataProvider.getTimeZone());
         let end = endDate;
         let index = 0;
         let lastTimelineBlock = false;
@@ -1611,10 +1612,10 @@ let TimelineElement = TimelineElement_1 = class TimelineElement extends LitEleme
     }
     fillHourResolutionBlock(resBlock, date, index, hourCounter, lastBlock, left, even) {
         if (this.localeDataProvider.isTwelveHourClock()) {
-            resBlock.innerText = this.localeDataProvider.formatDate(date, "h");
+            resBlock.innerText = this.localeDataProvider.formatTime(date, "h");
         }
         else {
-            resBlock.innerText = this.localeDataProvider.formatDate(date, "HH");
+            resBlock.innerText = this.localeDataProvider.formatTime(date, "HH");
         }
         if (even) {
             resBlock.classList.add(TimelineElement_1.STYLE_EVEN);

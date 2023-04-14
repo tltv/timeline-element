@@ -1,4 +1,4 @@
-import { format } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 export class DateTimeConstants {
 }
 DateTimeConstants.DAYS_IN_WEEK = 7;
@@ -30,7 +30,7 @@ export function toNormalDate(zonedDate, adjustment) {
     return new Date(zonedDate.getTime() - adjustment);
 }
 export function adjustToMiddleOfDay(zonedDate, timeZone) {
-    let hourStr = format(zonedDate, "HH", { timeZone: timeZone });
+    let hourStr = formatInTimeZone(zonedDate, timeZone, "HH");
     let h = parseInt(hourStr);
     let addHours = 12 - h;
     return new Date(zonedDate.getTime() + (addHours * DateTimeConstants.HOUR_INTERVAL));

@@ -48,8 +48,11 @@ export declare class TimelineElement extends LitElement {
     resolution: Resolution;
     startDateTime: string;
     endDateTime: string;
+    /** Start Date of the timeline. Native Date object can be in "wrong" time zone, as it matches browser's time zone. */
     internalInclusiveStartDateTime: Date;
+    /** End Date of the timeline. */
     internalInclusiveEndDateTime: Date;
+    /** Timezone for date and time formatting. Doesn't match with actual start and end Date object's time zone. */
     timeZone: string;
     locale: string;
     firstDayOfWeek: number;

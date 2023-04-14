@@ -1,4 +1,4 @@
-import { format } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 export class DefaultLocaleDataProvider {
     constructor(locale, timeZone, firstDayOfWeek, twelveHourClock) {
         this.locale = "en-US";
@@ -12,6 +12,7 @@ export class DefaultLocaleDataProvider {
         this.timeZone = timeZone;
         this.firstDayOfWeek = firstDayOfWeek;
         this.twelveHourClock = twelveHourClock;
+        this.browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
     getMonthNames() {
         return this.monthNames;
@@ -23,7 +24,14 @@ export class DefaultLocaleDataProvider {
         return this.firstDayOfWeek;
     }
     formatDate(date, pattern) {
-        return format(date, pattern, { timeZone: this.getTimeZone() });
+        return formatInTimeZone(date, this.getTimeZone(), pattern);
+    }
+    formatTime(date, pattern) {
+        // formatInTimeZone is not working in all cases (date-fns-tz 2.0.0). 
+        // E.g. following returns wrong hour when run in Browser with "Europe/Helsinki" timezone: 
+        // console.log(formatInTimeZone(new Date("2020-03-29T01:00:00Z"), "Europe/Berlin", "HH:mm:ss XXX"));
+        //  Returns "04:00:00 +02:00". Should be "03:00:00 +02:00".
+        return formatInTimeZone(date, this.getTimeZone(), pattern);
     }
     isTwelveHourClock() {
         return this.twelveHourClock;
@@ -35,12 +43,15 @@ export class DefaultLocaleDataProvider {
         return this.timeZone;
     }
     getDaylightAdjustment(zonedDate) {
+        return this._getDaylightAdjustment(zonedDate, this.getTimeZone());
+    }
+    _getDaylightAdjustment(zonedDate, timezone) {
         let fullYear = zonedDate.getFullYear();
-        let janOffset = this._getOffset(fullYear, "01", this._offsetCache);
-        let julOffset = this._getOffset(fullYear, "07", this._offsetCache);
+        let janOffset = this._getOffset(fullYear, "01", this._offsetCache, timezone);
+        let julOffset = this._getOffset(fullYear, "07", this._offsetCache, timezone);
         if (janOffset !== julOffset) {
             let maxOffset = Math.max(janOffset, julOffset);
-            let targetOffset = this.getTimezoneOffset(zonedDate);
+            let targetOffset = this._getTimezoneOffset(zonedDate, timezone);
             if (targetOffset < maxOffset) {
                 // This is Daylight saving time
                 let minOffset = Math.min(janOffset, julOffset);
@@ -49,10 +60,20 @@ export class DefaultLocaleDataProvider {
         }
         return 0;
     }
+    _getDaylightSavingTime(fullYear, timezone) {
+        let janOffset = this._getOffset(fullYear, "01", this._offsetCache, timezone);
+        let julOffset = this._getOffset(fullYear, "07", this._offsetCache, timezone);
+        if (janOffset !== julOffset) {
+            let maxOffset = Math.max(janOffset, julOffset);
+            let minOffset = Math.min(janOffset, julOffset);
+            return maxOffset - minOffset;
+        }
+        return 0;
+    }
     isDaylightTime(zonedDate) {
         let fullYear = zonedDate.getFullYear();
-        let janOffset = this._getOffset(fullYear, "01", this._offsetCache);
-        let julOffset = this._getOffset(fullYear, "07", this._offsetCache);
+        let janOffset = this._getOffset(fullYear, "01", this._offsetCache, this.getTimeZone());
+        let julOffset = this._getOffset(fullYear, "07", this._offsetCache, this.getTimeZone());
         if (janOffset !== julOffset) {
             let maxOffset = Math.max(janOffset, julOffset);
             let targetOffset = this.getTimezoneOffset(zonedDate);
@@ -61,7 +82,10 @@ export class DefaultLocaleDataProvider {
         return false;
     }
     getTimezoneOffset(zonedDate) {
-        let offset = format(zonedDate, "xxx", { timeZone: this.getTimeZone() }); // like "+01:00"
+        return this._getTimezoneOffset(zonedDate, this.getTimeZone());
+    }
+    _getTimezoneOffset(zonedDate, timezone) {
+        let offset = formatInTimeZone(zonedDate, timezone, "xxx"); // like "+01:00"
         if (offset && offset.length === 6) {
             let hour = offset[1] + offset[2];
             if (hour === '24') {
@@ -75,11 +99,11 @@ export class DefaultLocaleDataProvider {
         }
         return 0;
     }
-    _getOffset(fullYear, month, cache) {
-        const key = `${fullYear}-${month}`;
-        if (!cache.get(key)) {
-            let jan = new Date(`${fullYear}-${month}-01T00:00:00Z`);
-            cache.set(key, this.getTimezoneOffset(jan));
+    _getOffset(fullYear, month, cache, timezone) {
+        const key = `${fullYear}-${month}-${timezone}`;
+        if (!cache.has(key)) {
+            let targetDate = new Date(`${fullYear}-${month}-01T00:00:00Z`);
+            cache.set(key, this._getTimezoneOffset(targetDate, timezone));
         }
         return cache.get(key);
     }

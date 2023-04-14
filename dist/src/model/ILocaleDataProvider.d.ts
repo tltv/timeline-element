@@ -29,6 +29,17 @@ export interface ILocaleDataProvider {
      */
     formatDate(date: Date, format: string): string;
     /**
+     * Format date to time String.
+     *
+     * @param date
+     *            Time to format (Expected to be in same TimeZone as
+     *            {@link #getTimeZone()}).
+     * @param format
+     *            Pattern of the time format. Like h or HH.
+     * @return Formatted time
+     */
+    formatTime(date: Date, format: string): string;
+    /**
      * Returns true, if active locale uses twelve hour clock.
      *
      * @return true if 12h clock. False if 24h clock.
@@ -47,4 +58,5 @@ export interface ILocaleDataProvider {
     /** Get daylight saving time adjustment in milliseconds for the target date. */
     getDaylightAdjustment(zonedDate: Date): number;
     isDaylightTime(zonedDate: Date): boolean;
+    getTimezoneOffset(zonedDate: Date): number;
 }
