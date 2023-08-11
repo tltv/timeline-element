@@ -41,7 +41,7 @@ import { query } from 'lit-element/decorators.js';
  * widths are calculated and all other API methods available can be used safely.
  *
  */
-let TimelineElement = TimelineElement_1 = class TimelineElement extends LitElement {
+export let TimelineElement = TimelineElement_1 = class TimelineElement extends LitElement {
     constructor() {
         super(...arguments);
         this.resolutionWeekDayblockWidth = 4;
@@ -1734,5 +1734,4 @@ __decorate([
 TimelineElement = TimelineElement_1 = __decorate([
     customElement('timeline-element')
 ], TimelineElement);
-export { TimelineElement };
 //# sourceMappingURL=timeline-element.js.map
