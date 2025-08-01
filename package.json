@@ -5,8 +5,8 @@
   "main": "timeline-element.js",
   "module": "timeline-element.js",
   "dependencies": {
-    "date-fns": "^2.30.0",
-    "date-fns-tz": "^2.0.0",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.0.0",
     "lit": "^2.8.0"
   },
   "devDependencies": {

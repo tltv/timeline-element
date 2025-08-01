@@ -34,11 +34,12 @@ export class DefaultLocaleDataProvider implements ILocaleDataProvider {
         return formatInTimeZone(date, this.getTimeZone(), pattern);
     }
     formatTime(date: Date, pattern: string): string {
-        // formatInTimeZone is not working in all cases (date-fns-tz 2.0.0). 
-        // E.g. following returns wrong hour when run in Browser with "Europe/Helsinki" timezone: 
-        // console.log(formatInTimeZone(new Date("2020-03-29T01:00:00Z"), "Europe/Berlin", "HH:mm:ss XXX"));
-        //  Returns "04:00:00 +02:00". Should be "03:00:00 +02:00".
-        return formatInTimeZone(date, this.getTimeZone(), pattern);
+        let options: Intl.DateTimeFormatOptions = {
+            hour: "numeric",
+            timeZone: this.getTimeZone(),
+            hour12: (pattern == 'h')
+        };
+        return new Intl.DateTimeFormat(this.getLocale(), options).format(date);
     }
     isTwelveHourClock(): boolean {
         return this.twelveHourClock;
